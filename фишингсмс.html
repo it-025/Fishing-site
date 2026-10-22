@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет по Информационной Безопасности</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --bg-main: #0b1120;
+            --bg-sidebar: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: #334155;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* --- Сайдбар --- */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--accent); }
+
+        .nav-btn {
+            background: transparent; border: none; color: var(--text-muted); padding: 14px 20px; text-align: left;
+            font-size: 15px; font-weight: 600; cursor: pointer; border-radius: 8px; margin-bottom: 8px;
+            transition: all 0.2s ease; display: flex; align-items: center; gap: 10px;
+        }
+        .nav-btn:hover { background-color: rgba(59, 130, 246, 0.1); color: var(--accent); }
+        .nav-btn.active { background-color: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+
+        /* --- Основной контент --- */
+        .main-content { margin-left: 280px; padding: 40px 50px; width: calc(100% - 280px); max-width: 1200px; }
+        .page { display: none; animation: fadeIn 0.4s ease forwards; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 32px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+        .subtitle { color: var(--text-muted); font-size: 16px; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+
+        /* --- Карточки --- */
+        .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); }
+        .card h2 { font-size: 20px; margin-bottom: 15px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .card h3 { font-size: 16px; color: #fff; margin-top: 20px; margin-bottom: 10px; }
+
+        ul, ol { padding-left: 25px; margin-bottom: 15px; }
+        li { margin-bottom: 10px; color: #cbd5e1; }
+        strong { color: #fff; }
+        code { background-color: #000; color: #a78bfa; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-size: 14px; }
+
+        .text-danger { color: var(--danger); font-weight: 600; }
+        .text-success { color: var(--success); font-weight: 600; }
+
+        /* --- Чек-лист --- */
+        .checklist { list-style: none; padding-left: 0; }
+        .checklist li { position: relative; padding-left: 30px; margin-bottom: 12px; }
+        .checklist li::before { content: "✔"; position: absolute; left: 0; color: var(--success); font-weight: bold; font-size: 18px; }
+
+        /* --- Таблица --- */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: var(--bg-main); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background-color: #1e293b; color: var(--accent); font-weight: 600; }
+        tr:last-child td { border-bottom: none; }
+
+        /* --- Изображение (с эффектом клика) --- */
+        .image-container {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background-color: #000;
+            cursor: zoom-in; /* Курсор-лупа */
+            transition: opacity 0.2s;
+        }
+        .image-container:hover { opacity: 0.9; }
+        .image-container img { width: 100%; height: auto; display: block; }
+
+        /* --- Вердикт --- */
+        .verdict { background-color: rgba(34, 197, 94, 0.1); border-left: 4px solid var(--success); padding: 20px; border-radius: 0 8px 8px 0; margin-top: 20px; }
+        .verdict h3 { color: var(--success); margin-top: 0; }
+
+        /* --- Модальное окно для увеличения фото --- */
+        .lightbox {
+            display: none; /* Скрыто по умолчанию */
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+        .lightbox img {
+            max-width: 95%;
+            max-height: 95%;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            animation: zoomIn 0.3s ease;
+        }
+        @keyframes zoomIn { from { transform: scale(0.8); } to { transform: scale(1); } }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--border); padding: 20px; }
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+            body { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Боковое меню -->
+    <div class="sidebar">
+        <div class="logo"><span>🛡️</span> SECURE REPORT</div>
+        <button class="nav-btn active" onclick="openTab('practice', this)">📝 Практика: Фишинг</button>
+        <button class="nav-btn" onclick="openTab('homework', this)">🏠 Домашнее задание</button>
+    </div>
+
+    <!-- Модальное окно (Лайтбокс) -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Увеличенное изображение">
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        
+        <!-- ВКЛАДКА 1: ПРАКТИКА -->
+        <div id="practice" class="page active">
+            <h1>Практика: Разбор фишинговых писем</h1>
+            <p class="subtitle">Анализ образцов, выявление признаков подделки и составление инструкций.</p>
+
+            <div class="card">
+                <h2>1. Признаки подделки в Образце 1</h2>
+                <ul>
+                    <li><strong>Несоответствие домена:</strong> Письмо с <code>trinigard-help.com</code>, а компания на <code>trinigard.ru</code>.</li>
+                    <li><strong>Срочность:</strong> «СРОЧНО», «в течение 2 часов», «до 18:00 сегодня».</li>
+                    <li><strong>Страх:</strong> «Зафиксирована попытка входа», «чтобы не потерять доступ».</li>
+                    <li><strong>Ссылка:</strong> Ведет на левый домен <code>trinigard-help.com/confirm</code>.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>2. Разбор технических заголовков (Образец 2)</h2>
+                <ul>
+                    <li><strong>From vs Return-Path:</strong> <span class="text-danger">Не совпадают!</span> В From: <code>buh@trinigard.ru</code>, в Return-Path: <code>noreply@mail-promo-delivery.net</code>.</li>
+                    <li><strong>spf=fail:</strong> IP отправителя (<code>185.22.14.9</code>) не разрешен для домена <code>trinigard.ru</code>.</li>
+                    <li><strong>Почему не заблокировали?</strong> Политика <code>action=quarantine</code> — письмо отправлено в Спам, а не отклонено.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>3. Сравнение с легитимным письмом (Образец 3)</h2>
+                <p>Легитимное письмо от <code>rosnou.ru</code> имеет статус <span class="text-success">PASS</span> для всех трех механизмов:</p>
+                <ul>
+                    <li><strong>SPF:</strong> pass (в подделке fail)</li>
+                    <li><strong>DKIM:</strong> pass (в подделке none)</li>
+                    <li><strong>DMARC:</strong> pass (в подделке fail)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>4. Чек-лист для коллег: «Как распознать фишинг за 30 секунд»</h2>
+                <ul class="checklist">
+                    <li>Проверяй реальный адрес отправителя, а не только его имя.</li>
+                    <li>Остерегайся искусственной срочности («срочно», «только сейчас»).</li>
+                    <li>Не поддавайся страху (угрозы блокировки, штрафы).</li>
+                    <li>Помни: банки и компании никогда не просят пароли по почте.</li>
+                    <li>Наведи мышку на ссылку (не кликай!) и проверь адрес.</li>
+                    <li>Обращай внимание на кривые логотипы и ошибки в тексте.</li>
+                    <li>Остерегайся писем с обращением «Уважаемый клиент».</li>
+                    <li>Не открывай вложения <code>.exe</code>, <code>.zip</code> или <code>.html</code> от незнакомцев.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>5. Алгоритм действий при получении подозрительного письма</h2>
+                <ul>
+                    <li><strong>НЕЛЬЗЯ:</strong> Отвечать, кликать, открывать вложения, пересылать коллегам.</li>
+                    <li><strong>Как сохранить:</strong> Пересылать только как вложение <strong>(.eml)</strong>, чтобы не потерять заголовки.</li>
+                    <li><strong>Куда сообщать:</strong> В службу ИБ (например, <code>security@company.ru</code>).</li>
+                    <li><strong>Если нажал:</strong> Срочно сменить пароль и сообщить в ИБ.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>6. Ответы на проверочные вопросы</h2>
+                <ol>
+                    <li><strong>Имя vs Домен:</strong> Имя подделать легко (назвался «Сбербанк»), а домен — сложнее (нужен <code>sberbank-security.com</code>).</li>
+                    <li><strong>SPF/DKIM pass:</strong> Не гарантирует легитимность. Злоумышленник может купить похожий домен и настроить все проверки.</li>
+                    <li><strong>Приёмы:</strong> Срочность (отключает логику) и Страх (отключает критическое мышление).</li>
+                    <li><strong>.eml vs форвард:</strong> Обычный форвард удаляет технические заголовки (SPF, IP). .eml сохраняет письмо целиком для расследования.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- ВКЛАДКА 2: ДОМАШНЕЕ ЗАДАНИЕ -->
+        <div id="homework" class="page">
+            <h1>Домашнее задание</h1>
+            <p class="subtitle">Анализ реального письма: проверка заголовков SPF, DKIM и DMARC.</p>
+
+            <div class="card">
+                <h2>📧 Исследуемое письмо</h2>
+                <p>Для анализа было выбрано письмо от сервиса <strong>Ollama</strong> (реклама нейросети MiniMax). В Gmail открыто меню «Показать оригинал». <em>(Кликните на картинку, чтобы увеличить)</em></p>
+                
+                <!-- Добавлен onclick для открытия лайтбокса -->
+                <div class="image-container" onclick="openLightbox(this.querySelector('img').src)">
+                    <img src="https://i.postimg.cc/DZj1zMv2/Snimok-ekrana-(8830).png" alt="Скриншот оригинального письма с заголовками">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🔍 Разбор технических данных</h2>
+                <p>В заголовках письма (<code>Authentication-Results</code>) сервер Google указал следующие результаты:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Механизм</th>
+                            <th>Результат</th>
+                            <th>Что это значит</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>SPF</strong></td>
+                            <td><span class="text-success">PASS</span></td>
+                            <td>IP-сервера (216.221.169.107) разрешен для домена <code>ollama.com</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DKIM</strong></td>
+                            <td><span class="text-success">PASS</span></td>
+                            <td>Письмо имеет валидную криптографическую подпись, целостность не нарушена.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DMARC</strong></td>
+                            <td><span class="text-success">PASS</span></td>
+                            <td>Политика домена соблюдена. Письмо действительно от <code>ollama.com</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="verdict">
+                    <h3>✅ Вывод</h3>
+                    <p>Письмо от сервиса <strong>Ollama</strong> является <strong>легитимным</strong>. Все механизмы (SPF, DKIM, DMARC) вернули статус <code>PASS</code>, что подтверждает подлинность отправителя и безопасность письма.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Скрипты -->
+    <script>
+        // Переключение вкладок
+        function openTab(tabId, btnElement) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // Открытие фото на весь экран
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lightbox.style.display = 'flex';
+        }
+
+        // Закрытие фото
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
